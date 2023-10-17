@@ -149,11 +149,10 @@ class DescriptionModelRetriever(ModelRetriever):
                 == 0
             ):
                 continue
-            block = False
-            for org in self.model_blocklist_organizations:
-                if f.startswith(org + "/"):
-                    block = True
-                    break
+            block = any(
+                f.startswith(f"{org}/")
+                for org in self.model_blocklist_organizations
+            )
             if block:
                 continue
             model_dict = json.load(
@@ -176,13 +175,12 @@ class DescriptionModelRetriever(ModelRetriever):
     def encode_model_descriptions(self, search_index_path) -> np.ndarray:
         """Encode model descriptions into a vector for indexing."""
         model_descriptions = [model.description for model in self.model_infos]
-        model_vectors = encode_text(
+        return encode_text(
             self.encoder_model_name,
             text_to_encode=model_descriptions,
             encoding_file=search_index_path,
             device=self.device,
         )
-        return model_vectors
 
     def scale_similarity_score(
         self, model_info: ModelInfo, model_score: float
@@ -213,9 +211,9 @@ class DescriptionModelRetriever(ModelRetriever):
 
     def construct_bm25_index(self, model_infos):
         """Construct a retriv BM25 index for model descriptions."""
-        collection = []
-        for model in model_infos:
-            collection.append({"id": model.name, "text": model.description})
+        collection = [
+            {"id": model.name, "text": model.description} for model in model_infos
+        ]
         if self.bm25_index_exists():
             search_engine = retriv.SparseRetriever.load(self._search_index_path)
         else:
@@ -250,9 +248,9 @@ class DescriptionModelRetriever(ModelRetriever):
         if self.use_bm25:
             search_engine = self.construct_bm25_index(self.model_infos)
             results = search_engine.search(query_text, cutoff=self.first_stage_depth)
-            ranked_list: list[tuple[str, float]] = []
-            for result in results:
-                ranked_list.append((result["id"], result["score"]))
+            ranked_list: list[tuple[str, float]] = [
+                (result["id"], result["score"]) for result in results
+            ]
         else:
             query_vector = encode_text(
                 self.encoder_model_name,

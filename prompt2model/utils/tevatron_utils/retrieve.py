@@ -39,5 +39,4 @@ def retrieve_objects(
 
     psg_scores = all_scores[0]
     ranked_document_names = [document_names[passage_lookup[x]] for x in all_indices[0]]
-    score_tuples = list(zip(ranked_document_names, psg_scores))
-    return score_tuples
+    return list(zip(ranked_document_names, psg_scores))

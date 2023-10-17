@@ -269,11 +269,11 @@ def test_gpt_trainer_with_epoch_evaluation():
             ),
         ]
 
-        with patch.object(logger, "info") as mock_info, patch.object(
-            logger, "warning"
-        ) as mock_warning, patch.object(
-            logging.getLogger("ModelEvaluator"), "info"
-        ) as mock_evaluator_info:
+        with (patch.object(logger, "info") as mock_info, patch.object(
+                    logger, "warning"
+                ) as mock_warning, patch.object(
+                    logging.getLogger("ModelEvaluator"), "info"
+                ) as mock_evaluator_info):
             trainer = GenerationModelTrainer(
                 "sshleifer/tiny-gpt2",
                 has_encoder=False,
@@ -307,8 +307,9 @@ def test_gpt_trainer_with_epoch_evaluation():
 
             assert trainer.validation_callback.epoch_count == num_train_epochs
             assert (
-                trainer.validation_callback.val_dataset_size == len(validation_datasets)
-                and len(validation_datasets) != 0
+                trainer.validation_callback.val_dataset_size
+                == len(validation_datasets)
+                and validation_datasets
             )
 
             # Check if logger.warning was not called.
@@ -392,11 +393,11 @@ def test_gpt_trainer_with_unsupported_evaluation_strategy():
             ),
         ]
 
-        with patch.object(logger, "info") as mock_info, patch.object(
-            logger, "warning"
-        ) as mock_warning, patch.object(
-            logging.getLogger("ModelEvaluator"), "info"
-        ) as mock_evaluator_info:
+        with (patch.object(logger, "info") as mock_info, patch.object(
+                    logger, "warning"
+                ) as mock_warning, patch.object(
+                    logging.getLogger("ModelEvaluator"), "info"
+                ) as mock_evaluator_info):
             trainer = GenerationModelTrainer(
                 "sshleifer/tiny-gpt2",
                 has_encoder=False,
@@ -431,8 +432,9 @@ def test_gpt_trainer_with_unsupported_evaluation_strategy():
 
             assert trainer.validation_callback.epoch_count == num_train_epochs
             assert (
-                trainer.validation_callback.val_dataset_size == len(validation_datasets)
-                and len(validation_datasets) != 0
+                trainer.validation_callback.val_dataset_size
+                == len(validation_datasets)
+                and validation_datasets
             )
 
             # Check if logger.warning was called once.

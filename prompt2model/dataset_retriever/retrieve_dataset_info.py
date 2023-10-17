@@ -24,8 +24,7 @@ def get_fully_supported_dataset_names():
     API_URL = "https://datasets-server.huggingface.co/valid"
     response = requests.get(API_URL)
     datasets_list = response.json()
-    fully_supported_datasets = datasets_list["viewer"] + datasets_list["preview"]
-    return fully_supported_datasets
+    return datasets_list["viewer"] + datasets_list["preview"]
 
 
 def construct_search_documents(
@@ -60,11 +59,13 @@ if __name__ == "__main__":
     filtered_dataset_names, filtered_descriptions = construct_search_documents(
         dataset_names, dataset_descriptions, fully_supported_dataset_names
     )
-    dataset_index = {}
-    for name, description in zip(filtered_dataset_names, filtered_descriptions):
-        dataset_index[name] = {
+    dataset_index = {
+        name: {
             "name": name,
             "description": description,
         }
-
+        for name, description in zip(
+            filtered_dataset_names, filtered_descriptions
+        )
+    }
     json.dump(dataset_index, open(args.dataset_index_file, "w"))

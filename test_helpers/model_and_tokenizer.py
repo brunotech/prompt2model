@@ -28,8 +28,7 @@ def create_gpt2_model_and_tokenizer(full_size: bool = False) -> ModelAndTokenize
         gpt2_tokenizer.pad_token = gpt2_tokenizer.eos_token
     if gpt2_model.config.pad_token_id is None:
         gpt2_model.config.pad_token_id = gpt2_tokenizer.eos_token_id
-    gpt2_model_and_tokenizer = ModelAndTokenizer(gpt2_model, gpt2_tokenizer)
-    return gpt2_model_and_tokenizer
+    return ModelAndTokenizer(gpt2_model, gpt2_tokenizer)
 
 
 def create_t5_model_and_tokenizer(full_size: bool = False) -> ModelAndTokenizer:
@@ -51,5 +50,4 @@ def create_t5_model_and_tokenizer(full_size: bool = False) -> ModelAndTokenizer:
     else:
         t5_model = T5ForConditionalGeneration.from_pretrained("t5-small")
         t5_tokenizer = AutoTokenizer.from_pretrained("t5-small")
-    t5_model_and_tokenizer = ModelAndTokenizer(t5_model, t5_tokenizer)
-    return t5_model_and_tokenizer
+    return ModelAndTokenizer(t5_model, t5_tokenizer)

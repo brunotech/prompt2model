@@ -156,21 +156,20 @@ class PromptBasedDatasetGenerator(DatasetGenerator):
         """
         while True:
             # Choose a few examples to add to the prompt if examples exist.
-            if len(generated_examples) == 0:
+            if not generated_examples:
                 low_quality_example_string = "N/A\n"
                 random_selected_generated_example_num = 0
             else:
-                low_quality_example_string = ""
                 random_selected_generated_example_num = random.randint(
                     1, min(len(generated_examples), 10)
                 )
                 random_examples = random.sample(
                     generated_examples, random_selected_generated_example_num
                 )
-                for example in random_examples:
-                    low_quality_example_string += (
-                        f'input="{example.input_col}"\noutput="{example.output_col}"\n'
-                    )
+                low_quality_example_string = "".join(
+                    f'input="{example.input_col}"\noutput="{example.output_col}"\n'
+                    for example in random_examples
+                )
             # To increase the diversity of the prompt to DatasetGenerator, create three
             # prompt templates, COMPLEX, MIDDLE, and SIMPLE. The COMPLEX template
             # contains 4 meta examples, the MIDDLE template contains 3 meta examples,
@@ -187,18 +186,16 @@ class PromptBasedDatasetGenerator(DatasetGenerator):
             )
             if count_tokens_from_string(prompt) < context_cutoff:
                 return prompt
-            else:
-                orginal_input_string = (
-                    instruction + few_shot_example_string
-                    if few_shot_example_string
-                    else instruction
+            orginal_input_string = (
+                instruction + few_shot_example_string
+                if few_shot_example_string
+                else instruction
+            )
+            if count_tokens_from_string(orginal_input_string) > context_cutoff:
+                logger.warning(
+                    "The original input prompt is too long. "
+                    "Consider writing a shorter prompt."
                 )
-                if count_tokens_from_string(orginal_input_string) > context_cutoff:
-                    logger.warning(
-                        "The original input prompt is too long. "
-                        "Consider writing a shorter prompt."
-                    )
-                continue
 
     def apply_multi_vote_filtering(
         self,
@@ -319,10 +316,9 @@ class PromptBasedDatasetGenerator(DatasetGenerator):
                         continue
                         # If the response is not a valid JSON object, discard it.
                     required_keys = ["input", "output"]
-                    missing_keys = [
+                    if missing_keys := [
                         key for key in required_keys if key not in response_json
-                    ]
-                    if len(missing_keys) != 0:
+                    ]:
                         logger.warning(
                             f'API response must contain {", ".join(required_keys)} keys'
                         )
@@ -382,13 +378,12 @@ class PromptBasedDatasetGenerator(DatasetGenerator):
 
         # Ensure the dynamic temperature is within the range [0, 2.0]
         clipped_temperature = max(0.0, min(2.0, dynamic_temperature))
-        responses = await chat_api.generate_batch_completion(
+        return await chat_api.generate_batch_completion(
             prompts,
             temperature=clipped_temperature,
             responses_per_request=self.responses_per_request,
             requests_per_minute=self.requests_per_minute,
         )
-        return responses
 
     def generate_dataset_split(
         self,

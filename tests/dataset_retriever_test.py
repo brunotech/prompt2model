@@ -142,11 +142,9 @@ def mock_canonicalize_dataset(self, dataset_name: str, prompt_spec) -> DatasetDi
             "output_col": ["mammals"],
         }
     )
-    # Create a mock DatasetDict consisting of the same example in each split.
-    dataset_splits = DatasetDict(
+    return DatasetDict(
         {"train": mock_dataset, "val": mock_dataset, "test": mock_dataset}
     )
-    return dataset_splits
 
 
 @patch(

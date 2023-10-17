@@ -93,12 +93,12 @@ ENDING_LINE = "After seeing these examples with the required columns, please pro
 def truncate_row(example_row: dict, max_length=50) -> str:
     """Truncate the row before displaying if it is too long."""
     truncated_row = {}
-    for key in example_row.keys():
+    for key in example_row:
         curr_row = json.dumps(example_row[key])
         truncated_row[key] = (
             curr_row
             if len(curr_row) <= max_length - 3
-            else curr_row[:max_length] + "..."
+            else f"{curr_row[:max_length]}..."
         )
     return json.dumps(truncated_row)
 
@@ -133,10 +133,10 @@ def construct_prompt_for_column_selection(
 ) -> str:
     """Generate prompt for column selection."""
     prompt_sections = [METAPROMPT_BASE]
-    for prompt, columns in METAPROMPT_EXAMPLES:
-        prompt_sections.append(
-            SINGLE_DEMONSTRATION_TEMPLATE.format(prompt=prompt, columns=columns)
-        )
+    prompt_sections.extend(
+        SINGLE_DEMONSTRATION_TEMPLATE.format(prompt=prompt, columns=columns)
+        for prompt, columns in METAPROMPT_EXAMPLES
+    )
     all_prompts = "\n\n------\n\n".join(prompt_sections) + "\n\n------\n\n"
     input_prompt = build_input(
         instruction, dataset_name, dataset_description, dataset_columns, sample_row

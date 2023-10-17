@@ -34,21 +34,19 @@ def extract_response(
         logger.warning(f"API response was not a valid JSON: {response_text}")
         return None
 
-    missing_keys = [key for key in required_keys if key not in response_json]
-    if len(missing_keys) != 0:
+    if missing_keys := [
+        key for key in required_keys if key not in response_json
+    ]:
         logger.warning(f'API response must contain {", ".join(required_keys)} keys')
         return None
 
-    final_response = {}
-    for key in required_keys + optional_keys:
-        if key not in response_json:
-            # This is an optional key, so exclude it from the final response.
-            continue
-        if type(response_json[key]) == str:
-            final_response[key] = response_json[key].strip()
-        else:
-            final_response[key] = response_json[key]
-    return final_response
+    return {
+        key: response_json[key].strip()
+        if type(response_json[key]) == str
+        else response_json[key]
+        for key in required_keys + optional_keys
+        if key in response_json
+    }
 
 
 def parse_prompt_to_fields(
@@ -95,8 +93,7 @@ def parse_prompt_to_fields(
                 return extraction
         except API_ERRORS as e:
             last_error = e
-            handle_api_error(e)
-
+            handle_api_error(last_error)
         if api_call_counter >= max_api_calls:
             # In case we reach maximum number of API calls, we raise an error.
             logger.error("Maximum number of API calls reached.")

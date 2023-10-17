@@ -80,7 +80,7 @@ class BaseProcessor(ABC):
             Raises:
                 ValueError: If no 'input_col' or 'output_col' inside the example.
             """
-            if not ("input_col" in example and "output_col" in example):
+            if "input_col" not in example or "output_col" not in example:
                 raise ValueError(
                     "Example dictionary must have 'input_col' and 'output_col' keys."
                 )
@@ -149,10 +149,9 @@ class BaseProcessor(ABC):
             dataset[train_num + val_num : train_num + val_num + test_num]
         )
 
-        dataset_dict = datasets.DatasetDict(
+        return datasets.DatasetDict(
             {"train": train_dataset, "val": val_dataset, "test": test_dataset}
         )
-        return dataset_dict
 
     @staticmethod
     def wrap_single_input(instruction: str, input: str):

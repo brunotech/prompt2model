@@ -54,11 +54,11 @@ class DatasetGenerator(ABC):
         Returns:
             A DatasetDict containing train, val, and test splits.
         """
-        dataset_dict = datasets.DatasetDict(
+        return datasets.DatasetDict(
             {
-                split.value: self.generate_dataset_split(prompt_spec, num, split=split)
+                split.value: self.generate_dataset_split(
+                    prompt_spec, num, split=split
+                )
                 for split, num in num_examples.items()
             }
         )
-
-        return dataset_dict

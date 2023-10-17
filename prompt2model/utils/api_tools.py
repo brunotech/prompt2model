@@ -103,7 +103,7 @@ class APIAgent:
         else:
             max_tokens = 3 * num_prompt_tokens
 
-        response = completion(  # completion gets the key from os.getenv
+        return completion(  # completion gets the key from os.getenv
             model=self.model_name,
             messages=[
                 {"role": "user", "content": f"{prompt}"},
@@ -114,7 +114,6 @@ class APIAgent:
             frequency_penalty=frequency_penalty,
             max_tokens=max_tokens,
         )
-        return response
 
     async def generate_batch_completion(
         self,
@@ -248,8 +247,7 @@ def count_tokens_from_string(string: str, encoding_name: str = "cl100k_base") ->
         The number of tokens in the string.
     """
     encoding = tiktoken.get_encoding(encoding_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
+    return len(encoding.encode(string))
 
 
 # This is the default API agent that is used everywhere if a different agent is not

@@ -36,8 +36,7 @@ class MockCompletion:
         Returns:
             _string: A string representation of the object, including its choices.
         """
-        _string = f"<MockObject choices={self.choices}>"
-        return _string
+        return f"<MockObject choices={self.choices}>"
 
 
 class MockBatchDifferentCompletions:
@@ -95,7 +94,7 @@ class MockBatchDifferentCompletions:
         The fivth and API call is specifically designed for
         testing generate dataset_dict.
         """
-        assert length == 4 or length == 5
+        assert length in {4, 5}
         self.mock_completions: list[list[MockCompletion]] = []
         self.current_index = 0
         mock_completion_1 = MockCompletion()
@@ -174,11 +173,12 @@ def mock_batch_api_response_identical_completions(
         A mock completion object simulating an ChatCompletion API response.
     """
     _ = prompts, temperature, presence_penalty, frequency_penalty, requests_per_minute
-    mock_completions = [
-        MockCompletion(content=content, responses_per_request=responses_per_request)
+    return [
+        MockCompletion(
+            content=content, responses_per_request=responses_per_request
+        )
         for _ in prompts
     ]
-    return mock_completions
 
 
 class MockAPIAgent(APIAgent):

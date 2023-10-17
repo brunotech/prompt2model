@@ -96,13 +96,13 @@ class Seq2SeqEvaluator(ModelEvaluator):
         for metric in metrics:
             metric_name = metric.name
             metric.add_batch(predictions=predicted_strings, references=ground_truths)
-            if metric_name == "chr_f":
-                metric_values["chr_f++"] = metric.compute(word_order=2)["score"]
-            elif metric_name == "exact_match":
-                metric_values[metric_name] = metric.compute()["exact_match"]
-            elif metric_name == "bert_score":
+            if metric_name == "bert_score":
                 metric_values["average_bert_score"] = np.average(
                     metric.compute(model_type=encoder_model_name)["f1"]
                 )
 
+            elif metric_name == "chr_f":
+                metric_values["chr_f++"] = metric.compute(word_order=2)["score"]
+            elif metric_name == "exact_match":
+                metric_values[metric_name] = metric.compute()["exact_match"]
         return metric_values

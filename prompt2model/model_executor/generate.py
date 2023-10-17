@@ -45,7 +45,7 @@ class GenerationModelExecutor(ModelExecutor):
                 "search are supported for inference."
             )
         if generate_strategy == "greedy":
-            output = self.model.generate(
+            return self.model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=self.sequence_max_length,
@@ -56,7 +56,7 @@ class GenerationModelExecutor(ModelExecutor):
                 ),
             )
         elif generate_strategy == "beam":
-            output = self.model.generate(
+            return self.model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=self.sequence_max_length,
@@ -69,7 +69,7 @@ class GenerationModelExecutor(ModelExecutor):
                 num_beams=hyperparameter_choices.get("num_beams", 3),
             )
         elif generate_strategy == "top_k":
-            output = self.model.generate(
+            return self.model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=self.sequence_max_length,
@@ -82,7 +82,7 @@ class GenerationModelExecutor(ModelExecutor):
                 top_k=hyperparameter_choices.get("top_k", 20),
             )
         elif generate_strategy == "top_p":
-            output = self.model.generate(
+            return self.model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=self.sequence_max_length,
@@ -96,7 +96,7 @@ class GenerationModelExecutor(ModelExecutor):
             )
         else:
             # For intersect sampling.
-            output = self.model.generate(
+            return self.model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=self.sequence_max_length,
@@ -109,7 +109,6 @@ class GenerationModelExecutor(ModelExecutor):
                 top_k=hyperparameter_choices.get("top_k", 20),
                 top_p=hyperparameter_choices.get("top_p", 0.95),
             )
-        return output
 
     def make_prediction(
         self,
@@ -193,15 +192,14 @@ class GenerationModelExecutor(ModelExecutor):
         """
         expected_num_examples = 1
         inference_dataset = datasets.Dataset.from_dict({"model_input": [model_input]})
-        inference_column = "model_input"
         if len(inference_dataset) != expected_num_examples:
             raise ValueError(
                 f"Expected {expected_num_examples} examples, "
                 f"but got {len(inference_dataset)}."
             )
-        model_output = self.make_prediction(
+        inference_column = "model_input"
+        return self.make_prediction(
             inference_dataset,
             inference_column,
             hyperparameter_choices,
         )[0]
-        return model_output

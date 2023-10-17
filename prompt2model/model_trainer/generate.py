@@ -91,7 +91,7 @@ class GenerationModelTrainer(BaseTrainer):
         self.validation_callback: ValidationCallback | None = None
         self.training_seed = seed_generator.get_seed()
 
-    def get_left_padding_length(cls, input_list, padding_token_id):
+    def get_left_padding_length(self, input_list, padding_token_id):
         """Get the left prefix length of the input list.
 
         Args:
@@ -104,7 +104,7 @@ class GenerationModelTrainer(BaseTrainer):
         """
         return len(list(takewhile(lambda x: x == padding_token_id, input_list)))
 
-    def get_right_padding_length(cls, input_ids, padding_token_id):
+    def get_right_padding_length(self, input_ids, padding_token_id):
         """Get the left prefix length of the input list.
 
         Args:
@@ -115,9 +115,7 @@ class GenerationModelTrainer(BaseTrainer):
         Returns:
             The length of [suffix, ..., suffix] in [Others, suffix, ..., suffix].
         """
-        # Reverse the input_ids to get the length of right padding.
-        suffix_length = cls.get_left_padding_length(input_ids[::-1], padding_token_id)
-        return suffix_length
+        return self.get_left_padding_length(input_ids[::-1], padding_token_id)
 
     def tokenize_dataset(
         self, dataset: datasets.Dataset, shuffle: bool = True
