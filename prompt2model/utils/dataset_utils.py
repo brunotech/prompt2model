@@ -16,7 +16,7 @@ def query(API_URL):
         else:
             logger.error(f"Error occurred in fetching size: {response.status_code}")
     except requests.exceptions.RequestException as e:
-        logger.error("Error occurred in making the request: " + str(e))
+        logger.error(f"Error occurred in making the request: {str(e)}")
 
     return {}
 

@@ -46,10 +46,9 @@ class MockParamSelector(ParamSelector):
         Return:
             A model and tokenizer (trained using default hyperparameters).
         """
-        single_model = self.trainer.train_model(
+        return self.trainer.train_model(
             self._example_hyperparameter_choices(), training_sets
         )
-        return single_model
 
     def select_from_spec(
         self,

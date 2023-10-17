@@ -130,10 +130,10 @@ def construct_prompt_for_instruction_parsing(user_prompt: str) -> str:
         A prompt to instruct GPT-3 to parse the user's provided prompt.
     """
     prompt_sections = [METAPROMPT_INSTRUCTION]
-    for prompt, correct_parse in METAPROMPT_EXAMPLES:
-        prompt_sections.append(
-            construct_single_demonstration(prompt, correct_parse, input_only=False)
-        )
+    prompt_sections.extend(
+        construct_single_demonstration(prompt, correct_parse, input_only=False)
+        for prompt, correct_parse in METAPROMPT_EXAMPLES
+    )
     all_prompts = "\n\n------\n\n".join(prompt_sections) + "\n\n------\n\n"
     user_input = construct_single_demonstration(user_prompt, None, input_only=True)
     all_prompts += (

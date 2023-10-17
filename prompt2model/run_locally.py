@@ -41,17 +41,13 @@ def process_input_prompt(prompt_tokens: list[str]) -> PromptSpec:
 
     """
     prompt_str = " ".join(prompt_tokens).strip()
-    start_quotations_present = False
-    end_quotations_present = False
     quotation_marks = ['"', "“", "‟", "”"]
-    for start_quote in quotation_marks:
-        if prompt_str.startswith(start_quote):
-            start_quotations_present = True
-            break
-    for end_quote in quotation_marks:
-        if prompt_str.endswith(end_quote):
-            end_quotations_present = True
-            break
+    start_quotations_present = any(
+        prompt_str.startswith(start_quote) for start_quote in quotation_marks
+    )
+    end_quotations_present = any(
+        prompt_str.endswith(end_quote) for end_quote in quotation_marks
+    )
     if start_quotations_present and end_quotations_present:
         prompt_str = prompt_str[1:-1]
 

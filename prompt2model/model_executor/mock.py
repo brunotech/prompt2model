@@ -39,5 +39,4 @@ class MockModelExecutor(ModelExecutor):
             A single model output, useful for exposing a model to a user interface.
         """
         _ = model_input
-        model_output = ModelOutput(prediction="", auxiliary_info={})
-        return model_output
+        return ModelOutput(prediction="", auxiliary_info={})

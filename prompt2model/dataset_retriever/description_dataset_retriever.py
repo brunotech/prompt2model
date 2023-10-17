@@ -69,14 +69,16 @@ class DescriptionDatasetRetriever(DatasetRetriever):
                 self.dataset_info_file,
             )
         self.full_dataset_metadata = json.load(open(self.dataset_info_file, "r"))
-        for dataset_name in sorted(self.full_dataset_metadata.keys()):
-            self.dataset_infos.append(
-                DatasetInfo(
-                    name=dataset_name,
-                    description=self.full_dataset_metadata[dataset_name]["description"],
-                    score=0.0,
-                )
+        self.dataset_infos.extend(
+            DatasetInfo(
+                name=dataset_name,
+                description=self.full_dataset_metadata[dataset_name][
+                    "description"
+                ],
+                score=0.0,
             )
+            for dataset_name in sorted(self.full_dataset_metadata.keys())
+        )
         if os.path.isdir(self.search_index_path):
             raise ValueError(
                 "Search index must either be a valid file or not exist yet. "
@@ -95,14 +97,13 @@ class DescriptionDatasetRetriever(DatasetRetriever):
     @staticmethod
     def _input_string():
         """Utility function to read a string from stdin."""
-        description = str(input())
-        return description
+        return str(input())
 
     @staticmethod
     def _input_y_n() -> bool:
         """Utility function to get a yes/no answer from the user via stdin."""
         y_n = str(input())
-        return not (y_n.strip() == "" or y_n.strip().lower() == "n")
+        return not (not y_n.strip() or y_n.strip().lower() == "n")
 
     @staticmethod
     def _print_divider():
@@ -132,11 +133,9 @@ class DescriptionDatasetRetriever(DatasetRetriever):
             "If none of these are relevant to your prompt, we'll only use "
             + "generated data. Are any of these datasets relevant? (y/N)"
         )
-        any_datasets_relevant = self._input_y_n()
-        if any_datasets_relevant:
+        if any_datasets_relevant := self._input_y_n():
             print(
-                "Which dataset would you like to use? Give the number between "
-                + f"1 and {len(top_datasets)}."
+                f"Which dataset would you like to use? Give the number between 1 and {len(top_datasets)}."
             )
             dataset_idx = int(input())
             chosen_dataset_name = top_datasets[dataset_idx - 1].name
@@ -155,9 +154,9 @@ class DescriptionDatasetRetriever(DatasetRetriever):
         input_col = []
         output_col = []
         for i in range(len(dataset_split)):
-            curr_string = ""
-            for col in input_columns:
-                curr_string += f"{col}: {dataset_split[i][col]}\n"
+            curr_string = "".join(
+                f"{col}: {dataset_split[i][col]}\n" for col in input_columns
+            )
             curr_string = curr_string.strip()
             input_col.append(curr_string)
             output_col.append(dataset_split[i][output_column])
@@ -193,10 +192,11 @@ class DescriptionDatasetRetriever(DatasetRetriever):
                 "Input columns length was less than 1 or output column length was not 1"
             )
 
-        incorrect_columns = [
-            col for col in input_columns + output_column if col not in dataset_columns
-        ]
-        if len(incorrect_columns) > 0:
+        if incorrect_columns := [
+            col
+            for col in input_columns + output_column
+            if col not in dataset_columns
+        ]:
             raise RuntimeError(
                 f"One or more columns ({incorrect_columns}) were output that were "
                 f"not in the list of columns in the dataset ({dataset_columns})."
@@ -211,11 +211,12 @@ class DescriptionDatasetRetriever(DatasetRetriever):
         output_columns: str,
     ) -> datasets.DatasetDict:
         """Canonicalize a dataset into a suitable text-to-text format."""
-        dataset_dict = {}
-        for split in dataset:
-            dataset_dict[split] = self.canonicalize_dataset_using_columns_for_split(
+        dataset_dict = {
+            split: self.canonicalize_dataset_using_columns_for_split(
                 dataset[split], input_columns, output_columns
             )
+            for split in dataset
+        }
         return datasets.DatasetDict(dataset_dict)
 
     def canonicalize_dataset_by_cli(
@@ -291,10 +292,9 @@ class DescriptionDatasetRetriever(DatasetRetriever):
         print(f'Will use the column "{output_column}" as our target.\n')
         self._print_divider()
 
-        canonicalized_dataset = self.canonicalize_dataset_using_columns(
+        return self.canonicalize_dataset_using_columns(
             dataset, input_columns, output_column
         )
-        return canonicalized_dataset
 
     def retrieve_top_datasets(
         self,

@@ -20,5 +20,4 @@ def mock_gradio_create(
 
     """
     _ = model, prompt_spec  # suppress unused variable warnings
-    dummy_interface = gr.Interface(lambda input: None, "textbox", "label")
-    return dummy_interface
+    return gr.Interface(lambda input: None, "textbox", "label")
